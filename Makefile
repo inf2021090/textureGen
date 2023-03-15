@@ -92,4 +92,28 @@ manage:
 	@echo "Running Django management command inside Docker container..."
 	docker-compose run web python manage.py $(cmd)
 	
+# Makefile for generating documentation with Sphinx
+
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+SOURCEDIR     = docs
+BUILDDIR      = docs/_build
+
+# generate HTML documentation
+html:
+	$(SPHINXBUILD) -b html $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
+
+# generate PDF documentation
+pdf:
+	$(SPHINXBUILD) -b latex $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/latex
+	make -C $(BUILDDIR)/latex all-pdf
+
+# generate all documentation formats
+all: html pdf
+
+# clean generated documentation
+cldocs:
+	rm -rf $(BUILDDIR)/*
+
+.PHONY: html pdf all cldocs
 

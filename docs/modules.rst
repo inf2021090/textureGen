@@ -1,7 +1,7 @@
 myapp package
 =============
 
-.. automodule:: myapp
+.. automodule:: textureGen
    :members:
    :undoc-members:
    :show-inheritance:

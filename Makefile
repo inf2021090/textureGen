@@ -1,119 +1,81 @@
-# Makefile for setting up and managing virtual environment, and running a Django application using Docker and Docker Compose
+VENV_NAME=env
+REQUIREMENTS=requirements.txt
+DOCKER_COMPOSE=docker-compose.yml
 
-# Set up virtual environment
-venv:
-	@echo "Creating virtual environment..."
-	python3 -m venv venv
-	@echo "Virtual environment created."
+.PHONY: help install setup update add clean start stop restart migrate migrations
 
-# Activate virtual environment
-activate:
-	@echo "Activating virtual environment..."
-	. venv/bin/activate
-	@echo "Virtual environment activated."
-
-# Install dependencies from requirements.txt
-install:
-	@echo "Installing dependencies from requirements.txt..."
-	venv/bin/pip install -r requirements.txt
-	@echo "Dependencies installed."
-
-# Add dependencies to requirements.txt
-add:
-	@echo "Enter package name (e.g. django==3.2.9) or CTRL+C to exit:"
-	@read package; \
-	venv/bin/pip install $$package; \
-	venv/bin/pip freeze > requirements.txt; \
-	@echo "Package added to requirements.txt."
-
-# Update requirements.txt with latest package versions
-update:
-	@echo "Updating requirements.txt..."
-	venv/bin/pip freeze --exclude-editable > requirements.txt
-	@echo "Requirements updated."
-
-# Help command
 help:
-	@echo "Usage: make [command]"
+	@echo "Usage: make [COMMAND]"
 	@echo ""
 	@echo "Commands:"
-	@echo "  venv          Set up virtual environment"
-	@echo "  activate      Activate virtual environment"
-	@echo "  install       Install dependencies from requirements.txt"
-	@echo "  add           Add a package to requirements.txt"
-	@echo "  update        Update requirements.txt with latest package versions"
-	@echo "  clean         Delete virtual environment"
-	@echo "  build         Build the Docker image for the Django application"
-	@echo "  up            Start the Docker containers for the Django application"
-	@echo "  down          Stop the Docker containers for the Django application"
-	@echo "  restart       Rebuild and start the Docker containers for the Django application"
-	@echo "  logs          View the logs for the Docker containers for the Django application"
-	@echo "  manage        Run Django management commands inside the Docker container"
+	@echo "  install         Installs dependencies"
+	@echo "  setup           Sets up a new virtual environment and activates it"
+	@echo "  update          Updates the virtual environment and requirements"
+	@echo "  add             Adds new dependency to requirements.txt"
+	@echo "  clean           Cleans the virtual environment and removes Docker containers"
+	@echo "  start           Starts the Django server"
+	@echo "  stop            Stops the Django server"
+	@echo "  restart         Restarts the Django server"
+	@echo ""
+	@echo "Example usage:"
+	@echo "  make install"
+	@echo "  make setup"
+	@echo "  make start"
+	@echo "  make stop"
+	@echo "  make restart"
 
-# Clean virtual environment
+install:
+	@echo "Installing dependencies..."
+	python -m venv $(VENV_NAME)
+	. $(VENV_NAME)/bin/activate && pip install -r $(REQUIREMENTS)
+	@echo "Install complete."
+
+setup:
+	@echo "Setting up virtual environment..."
+	python -m venv $(VENV_NAME)
+	@echo "Setup complete."
+
+update:
+	@echo "Updating virtual environment..."
+	. $(VENV_NAME)/bin/activate && pip install -r $(REQUIREMENTS)
+	@echo "Update complete."
+
+add:
+ifndef package
+	@echo "Package not specified. Usage: make add package=<package-name>"
+else
+	@echo "Adding dependency $(package) to requirements.txt..."
+	echo $(package) >> $(REQUIREMENTS)
+	@echo "Dependency added."
+endif
+
 clean:
-	@echo "Deleting virtual environment..."
-	rm -rf venv
-	@echo "Virtual environment deleted."
+	@echo "Cleaning virtual environment and Docker containers..."
+	- . $(VENV_NAME)/bin/deactivate
+	rm -rf $(VENV_NAME)
+	docker-compose -f $(DOCKER_COMPOSE) down
+	@echo "Clean complete."
 
-# Build the Docker image for the Django application
-build:
-	@echo "Building Docker image for the Django application..."
-	docker build -t <image_name> .
-	@echo "Docker image built."
+start:
+	@echo "Starting Django server..."
+	. $(VENV_NAME)/bin/activate && docker-compose -f $(DOCKER_COMPOSE) up -d
+	. $(VENV_NAME)/bin/activate && python manage.py runserver
 
-# Start the Docker containers for the Django application
-up:
-	@echo "Starting Docker containers for the Django application..."
-	docker-compose up -d
-	@echo "Docker containers started."
+stop:
+	@echo "Stopping Django server..."
+	. $(VENV_NAME)/bin/activate && docker-compose -f $(DOCKER_COMPOSE) down
 
-# Stop the Docker containers for the Django application
-down:
-	@echo "Stopping Docker containers for the Django application..."
-	docker-compose down
-	@echo "Docker containers stopped."
-
-# Rebuild and start the Docker containers for the Django application
 restart:
-	@echo "Rebuilding and starting Docker containers for the Django application..."
-	docker-compose down
-	docker-compose up -d
-	@echo "Docker containers rebuilt and started."
+	@echo "Restarting Django server..."
+	. $(VENV_NAME)/bin/activate && docker-compose -f $(DOCKER_COMPOSE) restart
 
-# View the logs for the Docker containers for the Django application
-logs:
-	@echo "Viewing logs for Docker containers for the Django application..."
-	docker-compose logs -f
-	@echo "Logs viewed."
+migrate:
+	@echo "Running Django migrations..."
+	. $(VENV_NAME)/bin/activate && python manage.py migrate
+	@echo "Migrations complete."
 
-# Run Django management commands inside the Docker container
-manage:
-	@echo "Running Django management command inside Docker container..."
-	docker-compose run web python manage.py $(cmd)
-	
-# Makefile for generating documentation with Sphinx
-
-SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-SOURCEDIR     = docs
-BUILDDIR      = docs/_build
-
-# generate HTML documentation
-html:
-	$(SPHINXBUILD) -b html $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
-
-# generate PDF documentation
-pdf:
-	$(SPHINXBUILD) -b latex $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/latex
-	make -C $(BUILDDIR)/latex all-pdf
-
-# generate all documentation formats
-all: html pdf
-
-# clean generated documentation
-cldocs:
-	rm -rf $(BUILDDIR)/*
-
-.PHONY: html pdf all cldocs
+migrations:
+	@echo "Creating new migration..."
+	. $(VENV_NAME)/bin/activate && python manage.py makemigrations
+	@echo "New migration created."
 

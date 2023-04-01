@@ -1,3 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
+def streamlit_view(request):
+    return render(request, 'streamlit.html')
+

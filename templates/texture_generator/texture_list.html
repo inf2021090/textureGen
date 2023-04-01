@@ -1,0 +1,27 @@
+{% extends 'texture_generator/base.html' %}
+
+{% block content %}
+  <h1>Texture List</h1>
+  <form method="get">
+    <label for="category">Filter by category:</label>
+    <select name="category" id="category">
+      <option value="">All</option>
+      {% for category in categories %}
+        <option value="{{ category.name }}" {% if category.name == request.GET.category %}selected{% endif %}>{{ category.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+  </form>
+  {% if textures %}
+    <div class="texture-list">
+      {% for texture in textures %}
+        <div class="texture-item">
+          <img src="{{ texture.texture.url }}" alt="{{ texture.image.name }}">
+          <p>{{ texture.image.name }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No textures found.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+<!-- upload_texture.html -->
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Generate Texture</button>
+</form>
+
+<!-- texture_list.html -->
+<ul>
+    {% for texture in textures %}
+        <li>
+            <img src="{{ texture.texture.url }}">
+            <p>Category: {{ texture.category.name }}</p>
+        </li>
+    {% empty %}
+        <p>No textures available.</p>
+    {% endfor %}
+</ul>
+
+<form method="GET">
+    <select name="category">
+        <option value="">All</option>
+        {% for category in categories %}
+            <option value="{{ category.name }}">{{ category.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+</form>

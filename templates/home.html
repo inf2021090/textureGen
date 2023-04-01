@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Filter Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.3.0/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <h1>Image Filter Form</h1>
+    <form id="image-form" enctype="multipart/form-data">
+        <div>
+            <label for="image-file">Upload an image:</label>
+            <input type="file" id="image-file" name="image-file">
+        </div>
+        <div>
+            <input type="checkbox" id="apply-filter" name="apply-filter">
+            <label for="apply-filter">Apply a filter:</label>
+            <select id="filter-select" name="filter-select" disabled>
+                <option value="">-- Select a filter --</option>
+                <option value="grayscale">Grayscale</option>
+                <option value="sepia">Sepia</option>
+                <option value="invert">Invert</option>
+                <option value="blur">Blur</option>
+                <option value="emboss">Emboss</option>
+                <option value="none">None</option>
+                <option value="custom">Custom</option>
+            </select>
+        </div>
+        <div>
+            <input type="checkbox" id="apply-texture" name="apply-texture">
+            <label for="apply-texture">Apply a texture map:</label>
+            <select id="texture-select" name="texture-select" disabled>
+                <option value="">-- Select a texture --</option>
+                <option value="wood">Wood</option>
+                <option value="brick">Brick</option>
+                <option value="clouds">Clouds</option>
+                <option value="grass">Grass</option>
+                <option value="stone">Stone</option>
+                <option value="none">None</option>
+                <option value="custom">Custom</option>
+            </select>
+        </div>
+        <div>
+            <input type="submit" value="Preview">
+        </div>
+    </form>
+    <div id="preview-container"></div>
+    <button id="download-button" disabled>Download All Images</button>
+    <script>
+        $(function()) {
+            $('#apply-filter').change(function() {
+                if (this.checked) {
+                    $('#filter-select').prop('disabled', false);
+                } else {
+                    $('#filter-select').prop('disabled', true);
+                }
+            });}
+            $('#apply-texture').change(function() {
+                if (this.checked) {
+                    $('#texture-select').prop('disabled', false);
+                } else {
+                    $('#texture-select').prop('disabled', true);
+                }
+            });
+            $('#image-form').submit(function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/preview',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        $('#preview-container').html(data);
+                        $('#download-button').prop('disabled', false);
+                    }
+                });
+            });
+            $('#download-button').click(function()) {
+                var zip = new JSZip();
+                var images = $('#preview-container').find('img');
+                images.each(function()) }
+
+
+

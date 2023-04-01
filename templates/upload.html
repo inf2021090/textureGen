@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Texture Generator</title>
+</head>
+<body>
+    <h1>Texture Generator</h1>
+    {% if download_url %}
+    <form method="get" action="{{ download_url }}">
+        {% csrf_token %}
+        <input type="submit" value="Download Generated Texture">
+    </form>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="image">Image:</label>
+        <input type="file" name="image" id="image">
+        <br><br>
+        <label for="category">Category:</label>
+        <input type="text" name="category" id="category">
+        <br><br>
+        <label for="height_map">Height Map:</label>
+        <input type="checkbox" name="height_map" id="height_map">
+        <br><br>
+        <label for="blur_filter">Blur Filter:</label>
+        <input type="checkbox" name="blur_filter" id="blur_filter">
+        <br><br>
+        <input type="submit" value="Generate Texture">
+    </form>
+</body>
+</html>
